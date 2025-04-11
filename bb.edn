@@ -1,0 +1,72 @@
+{:deps {medley/medley
+        {:mvn/version "1.3.0"}
+        lread/status-line
+        {:git/url "https://github.com/lread/status-line.git"
+         :sha     "cf44c15f30ea3867227fa61ceb823e5e942c707f"}}
+
+ :tasks
+ {:requires ([babashka.fs :as fs]
+             [babashka.process :as p]
+             [lread.status-line :as status])
+
+  clean
+  {:doc  "Cleans the temp build files"
+   :task (do
+           (status/line :head "clean")
+           (fs/delete-tree "target")
+           (fs/delete-if-exists "test-db.db")
+           (fs/delete-if-exists "junit.xml"))}
+
+  test
+  {:doc  "Runs the projects with kocha"
+   :task (do
+           (status/line :head "running-tests")
+           (time
+             (clojure "-M:jvm-base:dev:test")))}
+
+  lint
+  {:doc  "Lints the code base with clj-kondo"
+   :task (do
+           (status/line :head "running-lint")
+           (time
+             (clojure "-M:lint -m clj-kondo.main --lint src test")))}
+
+  main {:doc "Run the main command line inteface"
+        :task (clojure "-M:main")}
+
+  outdated
+  {:doc  "Run command to detect outdate version of our deps"
+   :task (clojure "-M:dev:outdated -m depot.outdated.main")}
+
+  doc-codox
+  {:doc  "Builds codox documentation"
+   :task (clojure "-X:dev:codox")}
+
+  nrepl
+  {:doc  "Run a nRepl"
+   :task (clojure
+           "-M:jvm-base:dev:nrepl")}
+
+  fmt
+  {:doc  "Fix format clojure code"
+   :task
+   (do
+     (clojure "-M:dev:format -m cljstyle.main fix scripts src dev test"))}
+
+  fmt-check
+  {:doc  "Check format clojure code"
+   :task
+   (do
+     (clojure "-M:dev:format -m cljstyle.main check scripts src dev"))}
+
+  docs
+  {:doc  "Builds all documentation"
+   :task (do (run 'doc-codox))}
+
+
+  ci
+  {:doc  "Runs linting and tests for the CI"
+   :task (do (run 'clean)
+             (run 'fmt-check)
+             (run 'lint)
+             (run 'test))}}}

@@ -1,0 +1,6 @@
+/claude-clj-client.iml
+/.nrepl-port
+/.clj-kondo/
+/.cpcache/
+/target/
+/.idea/
