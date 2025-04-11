@@ -1,0 +1,21 @@
+name: Maktaba CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install babashka
+      uses: just-sultanov/setup-babashka@v2
+      with:
+        version: '1.3.186'
+
+    - name: Run CI tasks
+      run: bb ci
